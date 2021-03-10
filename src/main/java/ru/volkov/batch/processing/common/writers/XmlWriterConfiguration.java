@@ -1,18 +1,25 @@
 package ru.volkov.batch.processing.common.writers;
 
 import org.springframework.batch.item.xml.StaxEventItemWriter;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.oxm.xstream.XStreamMarshaller;
-import org.springframework.stereotype.Component;
 import ru.volkov.batch.processing.domain.Customer;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class XmlWriter {
+@Configuration
+public class XmlWriterConfiguration {
 
-    public StaxEventItemWriter<Customer> init() throws Exception {
+    @Bean
+    @Qualifier("xmlWriter")
+    @Scope("prototype")
+    public StaxEventItemWriter<Customer> xmlWriter() throws Exception {
 
         XStreamMarshaller marshaller = new XStreamMarshaller();
         Map<String, Class> aliases = new HashMap<>();
@@ -27,6 +34,7 @@ public class XmlWriter {
         writer.setResource(new FileSystemResource(outputPath));
 
         writer.afterPropertiesSet();
+
         return writer;
     }
 }

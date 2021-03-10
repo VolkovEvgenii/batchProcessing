@@ -2,34 +2,35 @@ package ru.volkov.batch.processing.basic;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.database.JdbcPagingItemReader;
-import org.springframework.batch.item.xml.StaxEventItemWriter;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.volkov.batch.processing.common.processors.UpperCaseItemProcessor;
-import ru.volkov.batch.processing.common.readers.JdbcReader;
-import ru.volkov.batch.processing.common.writers.XmlWriter;
 import ru.volkov.batch.processing.domain.Customer;
 
-import javax.sql.DataSource;
-
 @Configuration
-public class BasicJobConfiguration {
+public class BasicJobConfiguration extends DefaultBatchConfigurer {
 
     private StepBuilderFactory stepBuilderFactory;
     private JobBuilderFactory jobBuilderFactory;
-    private DataSource dataSource;
+    private ItemReader<Customer> jdbcItemReader;
+    private ItemWriter<Customer> xmlWriter;
 
     public BasicJobConfiguration(
             StepBuilderFactory stepBuilderFactory,
             JobBuilderFactory jobBuilderFactory,
-            DataSource dataSource) {
+            @Qualifier("jdbcItemReader") ItemReader<Customer> jdbcItemReader,
+            @Qualifier("xmlWriter") ItemWriter<Customer> xmlWriter) {
         this.stepBuilderFactory = stepBuilderFactory;
         this.jobBuilderFactory = jobBuilderFactory;
-        this.dataSource = dataSource;
+        this.jdbcItemReader = jdbcItemReader;
+        this.xmlWriter = xmlWriter;
     }
 
     @Bean
@@ -38,24 +39,12 @@ public class BasicJobConfiguration {
     }
 
     @Bean
-    public JdbcPagingItemReader<Customer> jdbcReader() {
-        JdbcReader reader = new JdbcReader(this.dataSource);
-        return reader.init();
-    }
-
-    @Bean
-    public StaxEventItemWriter<Customer> xmlWriter() throws Exception {
-        XmlWriter writer = new XmlWriter();
-        return writer.init();
-    }
-
-    @Bean
     public Step basicStep() throws Exception {
         return stepBuilderFactory.get("basicStep")
                 .<Customer, Customer>chunk(10)
-                .reader(jdbcReader())
+                .reader(jdbcItemReader)
                 .processor(upperCaseProcessor())
-                .writer(xmlWriter())
+                .writer(xmlWriter)
                 .build();
 
     }
@@ -66,6 +55,7 @@ public class BasicJobConfiguration {
                 .start(basicStep())
                 .build();
     }
+
 
 
 }
