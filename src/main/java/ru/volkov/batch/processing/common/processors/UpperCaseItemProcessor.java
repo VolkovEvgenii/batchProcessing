@@ -1,4 +1,4 @@
-package ru.volkov.batch.processing.basic;
+package ru.volkov.batch.processing.common.processors;
 
 import org.springframework.batch.item.ItemProcessor;
 import ru.volkov.batch.processing.domain.Customer;

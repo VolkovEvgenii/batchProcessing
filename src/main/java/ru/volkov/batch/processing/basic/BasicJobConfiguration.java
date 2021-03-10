@@ -7,8 +7,9 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.volkov.batch.processing.common.JdbcReader;
-import ru.volkov.batch.processing.common.XmlWriter;
+import ru.volkov.batch.processing.common.processors.UpperCaseItemProcessor;
+import ru.volkov.batch.processing.common.readers.JdbcReader;
+import ru.volkov.batch.processing.common.writers.XmlWriter;
 import ru.volkov.batch.processing.domain.Customer;
 
 @Configuration

@@ -1,4 +1,4 @@
-package ru.volkov.batch.processing.common;
+package ru.volkov.batch.processing.common.writers;
 
 import org.springframework.batch.item.xml.StaxEventItemWriter;
 import org.springframework.core.io.FileSystemResource;
