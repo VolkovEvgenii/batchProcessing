@@ -3,12 +3,14 @@ package ru.volkov.batch.processing.common;
 import org.springframework.batch.item.xml.StaxEventItemWriter;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.oxm.xstream.XStreamMarshaller;
+import org.springframework.stereotype.Component;
 import ru.volkov.batch.processing.domain.Customer;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class XmlWriter {
 
     public StaxEventItemWriter<Customer> getXmlItemWriter() throws Exception {

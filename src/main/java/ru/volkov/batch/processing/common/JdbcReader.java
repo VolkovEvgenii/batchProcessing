@@ -6,6 +6,7 @@ import org.springframework.batch.item.database.support.PostgresPagingQueryProvid
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import ru.volkov.batch.processing.domain.Customer;
 import ru.volkov.batch.processing.domain.CustomerRowMapper;
 
@@ -13,6 +14,7 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class JdbcReader {
 
     private DataSource dataSource;
