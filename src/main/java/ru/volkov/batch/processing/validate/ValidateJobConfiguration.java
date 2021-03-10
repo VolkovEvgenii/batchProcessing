@@ -1,15 +1,16 @@
-package ru.volkov.batch.processing.basic;
+package ru.volkov.batch.processing.validate;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
+import org.springframework.batch.item.validator.ValidatingItemProcessor;
 import org.springframework.batch.item.xml.StaxEventItemWriter;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import ru.volkov.batch.processing.common.processors.UpperCaseItemProcessor;
+import ru.volkov.batch.processing.common.processors.ValidatingProcessor;
 import ru.volkov.batch.processing.common.readers.JdbcReader;
 import ru.volkov.batch.processing.common.writers.XmlWriter;
 import ru.volkov.batch.processing.domain.Customer;
@@ -17,13 +18,14 @@ import ru.volkov.batch.processing.domain.Customer;
 import javax.sql.DataSource;
 
 @Configuration
-public class BasicJobConfiguration {
+@ComponentScan("ru.volkov.batch.processing.common")
+public class ValidateJobConfiguration {
 
     private StepBuilderFactory stepBuilderFactory;
     private JobBuilderFactory jobBuilderFactory;
     private DataSource dataSource;
 
-    public BasicJobConfiguration(
+    public ValidateJobConfiguration(
             StepBuilderFactory stepBuilderFactory,
             JobBuilderFactory jobBuilderFactory,
             DataSource dataSource) {
@@ -33,8 +35,11 @@ public class BasicJobConfiguration {
     }
 
     @Bean
-    public ItemProcessor<Customer, Customer> upperCaseProcessor() {
-        return new UpperCaseItemProcessor();
+    public ValidatingItemProcessor<Customer> validateProcessor() {
+        ValidatingItemProcessor<Customer> processor = new ValidatingItemProcessor<>();
+        processor.setValidator(new ValidatingProcessor());
+        processor.setFilter(true);
+        return processor;
     }
 
     @Bean
@@ -50,22 +55,19 @@ public class BasicJobConfiguration {
     }
 
     @Bean
-    public Step basicStep() throws Exception {
-        return stepBuilderFactory.get("basicStep")
+    public Step validatingStep() throws Exception {
+        return stepBuilderFactory.get("validatingStep")
                 .<Customer, Customer>chunk(10)
                 .reader(jdbcReader())
-                .processor(upperCaseProcessor())
+                .processor(validateProcessor())
                 .writer(xmlWriter())
                 .build();
-
     }
 
     @Bean
-    public Job basicJob() throws Exception {
-        return jobBuilderFactory.get("basicJob")
-                .start(basicStep())
+    public Job validatingJob() throws Exception {
+        return jobBuilderFactory.get("validatingJob")
+                .start(validatingStep())
                 .build();
     }
-
-
 }

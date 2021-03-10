@@ -10,10 +10,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
 public class XmlWriter {
 
-    public StaxEventItemWriter<Customer> getXmlItemWriter() throws Exception {
+    public StaxEventItemWriter<Customer> init() throws Exception {
 
         XStreamMarshaller marshaller = new XStreamMarshaller();
         Map<String, Class> aliases = new HashMap<>();

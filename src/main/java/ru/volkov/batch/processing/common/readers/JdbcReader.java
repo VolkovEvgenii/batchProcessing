@@ -3,7 +3,6 @@ package ru.volkov.batch.processing.common.readers;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.support.PostgresPagingQueryProvider;
-import org.springframework.stereotype.Component;
 import ru.volkov.batch.processing.domain.Customer;
 import ru.volkov.batch.processing.domain.CustomerRowMapper;
 
@@ -11,7 +10,6 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
 public class JdbcReader {
 
     private DataSource dataSource;
@@ -20,7 +18,7 @@ public class JdbcReader {
         this.dataSource = dataSource;
     }
 
-    public JdbcPagingItemReader<Customer> getJdbcPagingItemReader() {
+    public JdbcPagingItemReader<Customer> init() {
         JdbcPagingItemReader<Customer> reader = new JdbcPagingItemReader<>();
 
         reader.setDataSource(this.dataSource);
