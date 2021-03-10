@@ -1,4 +1,4 @@
-package ru.volkov.batch.processing.basic;
+package ru.volkov.batch.processing.filtering;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -17,13 +17,13 @@ import ru.volkov.batch.processing.domain.Customer;
 import javax.sql.DataSource;
 
 @Configuration
-public class BasicJobConfiguration {
+public class FilteringJobConfiguration {
 
     private StepBuilderFactory stepBuilderFactory;
     private JobBuilderFactory jobBuilderFactory;
     private DataSource dataSource;
 
-    public BasicJobConfiguration(
+    public FilteringJobConfiguration(
             StepBuilderFactory stepBuilderFactory,
             JobBuilderFactory jobBuilderFactory,
             DataSource dataSource) {
@@ -33,13 +33,7 @@ public class BasicJobConfiguration {
     }
 
     @Bean
-    public JdbcPagingItemReader<Customer> jdbcPagingItemReader() {
-        JdbcReader reader = new JdbcReader(this.dataSource);
-        return reader.getJdbcPagingItemReader();
-    }
-
-    @Bean
-    @Qualifier("BasicXmlItemWriter")
+    @Qualifier("filteringXmlItemWriting")
     public StaxEventItemWriter<Customer> xmlItemWriter() throws Exception {
         XmlWriter writer = new XmlWriter();
         return writer.getXmlItemWriter();
@@ -47,14 +41,20 @@ public class BasicJobConfiguration {
 
     @Bean
     public ItemProcessor<Customer, Customer> processor() {
-        return new UpperCaseItemProcessor();
+        return new FilteringItemProcessor();
     }
 
     @Bean
-    public Step basicStep() throws Exception {
-        return stepBuilderFactory.get("basicStep")
+    public JdbcPagingItemReader<Customer> reader() {
+        JdbcReader reader = new JdbcReader(this.dataSource);
+        return reader.getJdbcPagingItemReader();
+    }
+
+    @Bean
+    public Step filteringStep() throws Exception {
+        return stepBuilderFactory.get("filteringStep")
                 .<Customer, Customer>chunk(10)
-                .reader(jdbcPagingItemReader())
+                .reader(reader())
                 .processor(processor())
                 .writer(xmlItemWriter())
                 .build();
@@ -62,11 +62,9 @@ public class BasicJobConfiguration {
     }
 
     @Bean
-    public Job basicJob() throws Exception {
-        return jobBuilderFactory.get("basicJob")
-                .start(basicStep())
+    public Job filteringJob() throws Exception {
+        return jobBuilderFactory.get("filteringJob")
+                .start(filteringStep())
                 .build();
     }
-
-
 }
